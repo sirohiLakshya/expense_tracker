@@ -1,6 +1,7 @@
 import 'package:expense_cal/widgets/new_transaction.dart';
 import 'package:flutter/material.dart';
 import './models/transaction.dart';
+import 'widgets/chart.dart';
 import 'widgets/transaction_list.dart';
 
 void main() {
@@ -11,7 +12,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        fontFamily: 'QuickSand',
+        textTheme: ThemeData.light().textTheme.copyWith(
+                titleMedium: TextStyle(
+              fontFamily: 'OpenSans',
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            )),
+        appBarTheme: AppBarTheme(
+          titleTextStyle: TextStyle(
+              fontFamily: 'OpenSans',
+              fontSize: 20,
+              fontWeight: FontWeight.bold),
+        ),
+      ),
+      title: 'Personal Expenses',
       home: MyHomePage(),
     );
   }
@@ -24,19 +41,30 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _userTransactions = [
-    Transaction(
-      amount: 50.01,
-      date: DateTime.now(),
-      id: 't1',
-      title: 'Shoes',
-    ),
-    Transaction(
-      amount: 20.56,
-      date: DateTime.now(),
-      id: 't2',
-      title: 'Grocery',
-    )
+    // Transaction(
+    //   amount: 50.01,
+    //   date: DateTime.now(),
+    //   id: 't1',
+    //   title: 'Shoes',
+    // ),
+    // Transaction(
+    //   amount: 20.56,
+    //   date: DateTime.now(),
+    //   id: 't2',
+    //   title: 'Grocery',
+    // )
   ];
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where(
+      (tx) {
+        return tx.date.isAfter(
+          DateTime.now().subtract(
+            Duration(days: 7),
+          ),
+        );
+      },
+    ).toList();
+  }
 
   void _addNewTrans(String txTitle, double txAmt) {
     final newTX = Transaction(
@@ -66,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter App'),
+        title: Text('Personal Expenses'),
         actions: [
           IconButton(
             onPressed: () => _startNewTrnx(context),
@@ -79,19 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Card(
-              color: Colors.amber,
-              elevation: 5,
-              child: Container(
-                width: double.infinity,
-                height: 50,
-                child: Text(
-                  'CHART',
-                  style: TextStyle(fontSize: 30),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+            Chart(_recentTransactions),
             TransactionList(
               transactions: _userTransactions,
             ),
